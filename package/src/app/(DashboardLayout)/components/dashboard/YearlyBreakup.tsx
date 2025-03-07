@@ -1,4 +1,3 @@
-
 import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useTheme } from '@mui/material/styles';
@@ -13,6 +12,8 @@ const YearlyBreakup = () => {
   const primary = theme.palette.primary.main;
   const primarylight = '#ecf2ff';
   const successlight = theme.palette.success.light;
+  const resolvedColor = '#4CAF50'; 
+  const unresolvedColor = '#FF5252'; 
 
   // chart
   const optionscolumnchart: any = {
@@ -25,7 +26,7 @@ const YearlyBreakup = () => {
       },
       height: 155,
     },
-    colors: [primary, primarylight, '#F9F9FD'],
+    colors: [resolvedColor, unresolvedColor],
     plotOptions: {
       pie: {
         startAngle: 0,
@@ -39,7 +40,18 @@ const YearlyBreakup = () => {
     tooltip: {
       theme: theme.palette.mode === 'dark' ? 'dark' : 'light',
       fillSeriesColor: false,
+      y: {
+        formatter: function(value: number) {
+          return value + "%"
+        },
+        title: {
+          formatter: function(seriesName: string) {
+            return seriesName + ":"
+          }
+        }
+      }
     },
+    labels: ['Resolved', 'Unresolved'],
     stroke: {
       show: false,
     },
@@ -60,17 +72,17 @@ const YearlyBreakup = () => {
       },
     ],
   };
-  const seriescolumnchart: any = [38, 40, 25];
+  const seriescolumnchart: any = [90,10];
 
   return (
-    <DashboardCard title="Yearly Breakup">
+    <DashboardCard title="Monthly Tickets Breakup">
       <Grid container spacing={3}>
         {/* column */}
         <Grid item xs={7} sm={7}>
           <Typography variant="h3" fontWeight="700">
-            $36,358
+            25 Tickets
           </Typography>
-          <Stack direction="row" spacing={1} mt={1} alignItems="center">
+          <Stack direction="row" spacing={1} mt={3} alignItems="center"> {/* Changed mt={1} to mt={3} */}
             <Avatar sx={{ bgcolor: successlight, width: 27, height: 27 }}>
               <IconArrowUpLeft width={20} color="#39B69A" />
             </Avatar>
@@ -84,18 +96,18 @@ const YearlyBreakup = () => {
           <Stack spacing={3} mt={5} direction="row">
             <Stack direction="row" spacing={1} alignItems="center">
               <Avatar
-                sx={{ width: 9, height: 9, bgcolor: primary, svg: { display: 'none' } }}
+                sx={{ width: 9, height: 9, bgcolor: resolvedColor, svg: { display: 'none' } }}
               ></Avatar>
               <Typography variant="subtitle2" color="textSecondary">
-                2022
+                Resolved
               </Typography>
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center">
               <Avatar
-                sx={{ width: 9, height: 9, bgcolor: primarylight, svg: { display: 'none' } }}
+                sx={{ width: 9, height: 9, bgcolor: unresolvedColor, svg: { display: 'none' } }}
               ></Avatar>
               <Typography variant="subtitle2" color="textSecondary">
-                2023
+                Unresolved
               </Typography>
             </Stack>
           </Stack>
@@ -106,7 +118,7 @@ const YearlyBreakup = () => {
             options={optionscolumnchart}
             series={seriescolumnchart}
             type="donut"
-            height={150} width={"100%"}
+            height={150} width={"120%"}
           />
         </Grid>
       </Grid>

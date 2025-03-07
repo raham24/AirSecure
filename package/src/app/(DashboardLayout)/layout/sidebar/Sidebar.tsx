@@ -1,7 +1,6 @@
 import { useMediaQuery, Box, Drawer } from "@mui/material";
 import SidebarItems from "./SidebarItems";
 import { Upgrade } from "./Updrade";
-import { Sidebar, Logo } from 'react-mui-sidebar';
 
 interface ItemType {
   isMobileSidebarOpen: boolean;
@@ -9,27 +8,23 @@ interface ItemType {
   isSidebarOpen: boolean;
 }
 
-const MSidebar = ({
+const Sidebar = ({
   isMobileSidebarOpen,
   onSidebarClose,
   isSidebarOpen,
 }: ItemType) => {
   const lgUp = useMediaQuery((theme: any) => theme.breakpoints.up("lg"));
-
   const sidebarWidth = "270px";
 
-  // Custom CSS for short scrollbar
   const scrollbarStyles = {
     '&::-webkit-scrollbar': {
       width: '7px',
-
     },
     '&::-webkit-scrollbar-thumb': {
       backgroundColor: '#eff2f7',
       borderRadius: '15px',
     },
   };
-
 
   if (lgUp) {
     return (
@@ -39,9 +34,6 @@ const MSidebar = ({
           flexShrink: 0,
         }}
       >
-        {/* ------------------------------------------- */}
-        {/* Sidebar for desktop */}
-        {/* ------------------------------------------- */}
         <Drawer
           anchor="left"
           open={isSidebarOpen}
@@ -53,34 +45,31 @@ const MSidebar = ({
             },
           }}
         >
-          {/* ------------------------------------------- */}
-          {/* Sidebar Box */}
-          {/* ------------------------------------------- */}
           <Box
             sx={{
               height: "100%",
+              backgroundColor: '#ffffff',
             }}
           >
-            <Sidebar
-              width={'270px'}
-              collapsewidth="80px"
-              open={isSidebarOpen}
-              themeColor="#5d87ff"
-              themeSecondaryColor="#49beff"
-              showProfile={false}
+            <Box
+              sx={{
+                width: '270px',
+                transition: 'width 0.2s',
+                backgroundColor: '#ffffff',
+              }}
             >
-              {/* ------------------------------------------- */}
-              {/* Logo */}
-              {/* ------------------------------------------- */}
-              <Logo img="/images/logos/dark-logo.svg" />
+              <Box sx={{ p: 2 }}>
+                <img 
+                  src="/images/logos/dark-logo.svg" 
+                  alt="AirSecure" 
+                  style={{ maxWidth: '100%' }} 
+                />
+              </Box>
               <Box>
-                {/* ------------------------------------------- */}
-                {/* Sidebar Items */}
-                {/* ------------------------------------------- */}
                 <SidebarItems />
                 <Upgrade />
               </Box>
-            </Sidebar >
+            </Box>
           </Box>
         </Drawer>
       </Box>
@@ -100,42 +89,29 @@ const MSidebar = ({
         },
       }}
     >
-      {/* ------------------------------------------- */}
-      {/* Sidebar Box */}
-      {/* ------------------------------------------- */}
       <Box px={2}>
-        <Sidebar
-          width={'270px'}
-          collapsewidth="80px"
-          isCollapse={false}
-          mode="light"
-          direction="ltr"
-          themeColor="#5d87ff"
-          themeSecondaryColor="#49beff"
-          showProfile={false}
+        <Box
+          sx={{
+            width: '270px',
+            backgroundColor: '#ffffff',
+            height: '100%'
+          }}
         >
-          {/* ------------------------------------------- */}
-          {/* Logo */}
-          {/* ------------------------------------------- */}
-          <Logo img="/images/logos/dark-logo.svg" />
-          {/* ------------------------------------------- */}
-          {/* Sidebar Items */}
-          {/* ------------------------------------------- */}
+          <Box sx={{ p: 2 }}>
+            <img 
+              src="/images/logos/dark-logo.svg" 
+              alt="logo" 
+              style={{ maxWidth: '100%' }} 
+            />
+          </Box>
           <SidebarItems />
           <Upgrade />
-        </Sidebar>
+        </Box>
       </Box>
-      {/* ------------------------------------------- */}
-      {/* Sidebar For Mobile */}
-      {/* ------------------------------------------- */}
-
     </Drawer>
   );
 };
 
-export default MSidebar;
-
-
-
+export default Sidebar;
 
 
