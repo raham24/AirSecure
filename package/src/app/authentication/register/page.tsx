@@ -48,12 +48,12 @@ const Register2 = () => (
             <AuthRegister
               subtext={
                 <Typography
-                  variant="subtitle1"
+                  variant="h3"
                   textAlign="center"
                   color="textSecondary"
-                  mb={1}
+                  fontWeight="600"
                 >
-                  Your Social Campaigns
+                  AirSecure
                 </Typography>
               }
               subtitle={

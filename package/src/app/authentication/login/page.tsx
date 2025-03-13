@@ -50,12 +50,12 @@ const Login2 = () => {
               <AuthLogin
                 subtext={
                   <Typography
-                    variant="subtitle1"
+                    variant="h3"
                     textAlign="center"
                     color="textSecondary"
-                    mb={1}
+                    fontWeight="500"
                   >
-                    Your Social Campaigns
+                    AirSecure
                   </Typography>
                 }
                 subtitle={
@@ -70,7 +70,7 @@ const Login2 = () => {
                       variant="h6"
                       fontWeight="500"
                     >
-                      New to Modernize?
+                      New to AirSecure?
                     </Typography>
                     <Typography
                       component={Link}

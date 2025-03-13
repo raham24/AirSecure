@@ -14,7 +14,7 @@ import { Link, Typography } from '@mui/material';
 
 const RecentTransactions = () => {
   return (
-    <DashboardCard title="Recent Transactions">
+    <DashboardCard title="Recent Scans">
       <>
         <Timeline
           className="theme-timeline"
@@ -40,7 +40,7 @@ const RecentTransactions = () => {
               <TimelineDot color="primary" variant="outlined" />
               <TimelineConnector />
             </TimelineSeparator>
-            <TimelineContent>Payment received from John Doe of $385.90</TimelineContent>
+            <TimelineContent>Scan - Completed. No risks were detected.</TimelineContent>
           </TimelineItem>
           <TimelineItem>
             <TimelineOppositeContent>10:00 am</TimelineOppositeContent>
@@ -49,9 +49,9 @@ const RecentTransactions = () => {
               <TimelineConnector />
             </TimelineSeparator>
             <TimelineContent>
-              <Typography fontWeight="600">New sale recorded</Typography>{' '}
+              <Typography fontWeight="600">Scan - Incompleted. 1233432 risks were detected</Typography>{' '}
               <Link href="/" underline="none">
-                #ML-3467
+                High-Risk
               </Link>
             </TimelineContent>
           </TimelineItem>
@@ -61,7 +61,7 @@ const RecentTransactions = () => {
               <TimelineDot color="success" variant="outlined" />
               <TimelineConnector />
             </TimelineSeparator>
-            <TimelineContent>Payment was made of $64.95 to Michael</TimelineContent>
+            <TimelineContent>Scan - Completed. No risks were detected</TimelineContent>
           </TimelineItem>
           <TimelineItem>
             <TimelineOppositeContent>09:30 am</TimelineOppositeContent>
@@ -70,9 +70,9 @@ const RecentTransactions = () => {
               <TimelineConnector />
             </TimelineSeparator>
             <TimelineContent>
-              <Typography fontWeight="600">New sale recorded</Typography>{' '}
+              <Typography fontWeight="600">Scan - Incompleted. 34328428 risks detected</Typography>{' '}
               <Link href="/" underline="none">
-                #ML-3467
+                High- Risk
               </Link>
             </TimelineContent>
           </TimelineItem>
@@ -83,7 +83,7 @@ const RecentTransactions = () => {
               <TimelineConnector />
             </TimelineSeparator>
             <TimelineContent>
-              <Typography fontWeight="600">New arrival recorded</Typography>
+              <Typography fontWeight="600">Scan - Completed. No risks were detected. </Typography>
             </TimelineContent>
           </TimelineItem>
           <TimelineItem>
@@ -91,7 +91,7 @@ const RecentTransactions = () => {
             <TimelineSeparator>
               <TimelineDot color="success" variant="outlined" />
             </TimelineSeparator>
-            <TimelineContent>Payment Received</TimelineContent>
+            <TimelineContent>Scan - Completed. No risks were detected. </TimelineContent>
           </TimelineItem>
         </Timeline>
       </>
