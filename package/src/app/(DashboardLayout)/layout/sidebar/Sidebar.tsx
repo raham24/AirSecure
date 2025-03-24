@@ -1,8 +1,6 @@
 import { useMediaQuery, Box, Drawer } from "@mui/material";
 import SidebarItems from "./SidebarItems";
 import { Upgrade } from "./Updrade";
-import StatsPage from "@/app/(DashboardLayout)/components/dashboard/StatsPage"
-
 
 interface ItemType {
   isMobileSidebarOpen: boolean;
