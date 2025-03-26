@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
+import { signJwt } from '@/utils/jwt'
 import { prisma } from '@/utils/prisma'
 import bcrypt from 'bcrypt'
+import { serialize } from 'cookie'
 
 export async function POST(req: Request) {
   const { email, password } = await req.json()
@@ -15,6 +17,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
   }
 
-  // TODO: Add JWT or session logic here
-  return NextResponse.json({ message: 'Login successful', userId: user.id })
+  const token = signJwt({ userId: user.id })
+
+  const response = NextResponse.json({ message: 'Login successful' })
+
+  response.headers.set(
+    'Set-Cookie',
+    serialize('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
+  )
+
+  return response
 }
