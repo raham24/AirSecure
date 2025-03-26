@@ -60,28 +60,49 @@ const Login2 = () => {
                 }
                 subtitle={
                   <Stack
-                    direction="row"
-                    spacing={1}
+                    direction="column"
+                    spacing={2}
                     justifyContent="center"
                     mt={3}
                   >
-                    <Typography
-                      color="textSecondary"
-                      variant="h6"
-                      fontWeight="500"
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      justifyContent="center"
                     >
-                      New to AirSecure?
-                    </Typography>
+                      <Typography
+                        color="textSecondary"
+                        variant="h6"
+                        fontWeight="500"
+                      >
+                        New to AirSecure?
+                      </Typography>
+                      <Typography
+                        component={Link}
+                        href="/authentication/register"
+                        fontWeight="500"
+                        sx={{
+                          textDecoration: "none",
+                          color: "primary.main",
+                        }}
+                      >
+                        Create an account
+                      </Typography>
+                    </Stack>
                     <Typography
                       component={Link}
-                      href="/authentication/register"
+                      href="/"
                       fontWeight="500"
                       sx={{
                         textDecoration: "none",
-                        color: "primary.main",
+                        color: "text.secondary",
+                        textAlign: "center",
+                        "&:hover": {
+                          color: "primary.main",
+                        },
                       }}
                     >
-                      Create an account
+                      Continue as Guest
                     </Typography>
                   </Stack>
                 }

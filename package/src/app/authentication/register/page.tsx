@@ -58,28 +58,48 @@ const Register2 = () => (
               }
               subtitle={
                 <Stack
-                  direction="row"
-                  justifyContent="center"
-                  spacing={1}
+                  direction="column"
+                  spacing={2}
                   mt={3}
                 >
-                  <Typography
-                    color="textSecondary"
-                    variant="h6"
-                    fontWeight="400"
+                  <Stack
+                    direction="row"
+                    justifyContent="center"
+                    spacing={1}
                   >
-                    Already have an Account?
-                  </Typography>
+                    <Typography
+                      color="textSecondary"
+                      variant="h6"
+                      fontWeight="400"
+                    >
+                      Already have an Account?
+                    </Typography>
+                    <Typography
+                      component={Link}
+                      href="/authentication/login"
+                      fontWeight="500"
+                      sx={{
+                        textDecoration: "none",
+                        color: "primary.main",
+                      }}
+                    >
+                      Sign In
+                    </Typography>
+                  </Stack>
                   <Typography
                     component={Link}
-                    href="/authentication/login"
+                    href="/"
                     fontWeight="500"
                     sx={{
                       textDecoration: "none",
-                      color: "primary.main",
+                      color: "text.secondary",
+                      textAlign: "center",
+                      "&:hover": {
+                        color: "primary.main",
+                      },
                     }}
                   >
-                    Sign In
+                    Continue as Guest
                   </Typography>
                 </Stack>
               }
