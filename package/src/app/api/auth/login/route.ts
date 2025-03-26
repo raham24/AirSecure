@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt'
 import { serialize } from 'cookie'
 
 export async function POST(req: Request) {
-  const { email, password } = await req.json()
+  const { email,name, password } = await req.json()
 
   const user = await prisma.user.findUnique({ where: { email } })
   if (!user) {
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
   }
 
-  const token = signJwt({ userId: user.id })
+  const token = signJwt({ userId: user.id, email: user.email, name: user.name })
 
   const response = NextResponse.json({ message: 'Login successful' })
 

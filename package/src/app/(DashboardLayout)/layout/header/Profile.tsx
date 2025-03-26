@@ -46,9 +46,6 @@ const Profile = () => {
           }}
         />
       </IconButton>
-      {/* ------------------------------------------- */}
-      {/* Message Dropdown */}
-      {/* ------------------------------------------- */}
       <Menu
         id="msgs-menu"
         anchorEl={anchorEl2}
@@ -82,15 +79,18 @@ const Profile = () => {
           <ListItemText>My Tasks</ListItemText>
         </MenuItem>
         <Box mt={1} py={1} px={2}>
-          <Button
-            href="/authentication/login"
-            variant="outlined"
-            color="primary"
-            component={Link}
-            fullWidth
-          >
-            Logout
-          </Button>
+        <Button
+  variant="outlined"
+  color="primary"
+  fullWidth
+  onClick={async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/authentication/login';
+  }}
+>
+  Logout
+</Button>
+
         </Box>
       </Menu>
     </Box>
