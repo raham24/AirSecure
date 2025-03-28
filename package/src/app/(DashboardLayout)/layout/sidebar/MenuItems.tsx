@@ -4,6 +4,7 @@ import {
   IconCopy,
   IconLayoutDashboard,
   IconLogin,
+  IconTicket,
   IconMoodHappy,
   IconTypography,
   IconUserPlus,
@@ -29,6 +30,12 @@ const Menuitems = [
     icon: IconAlignBoxBottomCenter,
     href: "/stats",
 
+  },
+  {
+    id: uniqueId(),
+    title: "Submit A Ticket",
+    icon: IconTicket,
+    href: "/ticket",
   },
 
   {
