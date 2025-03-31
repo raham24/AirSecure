@@ -65,10 +65,10 @@ const StatsPage = () => {
     },
     dataLabels: { enabled: false },
     xaxis: {
-      categories: ['Direct', 'Links', 'Social', 'Search', 'Internal'],
+      categories: ['Scanner 1', 'Scanner 2', 'Scanner 3', 'Scanner 4', 'Scanner 5'],
     },
     yaxis: {
-      title: { text: 'Visitors' },
+      title: { text: 'APNs' },
     },
     fill: { opacity: 1 },
     colors: [primary],
@@ -81,8 +81,8 @@ const StatsPage = () => {
 
   const trafficSeries: any = [
     {
-      name: 'Traffic Source',
-      data: [381, 74, 227, 67, 2136],
+      name: 'APNs Scanned',
+      data: [50, 80, 70, 100, 90],
     },
   ];
 
@@ -90,7 +90,8 @@ const StatsPage = () => {
     <Box display="flex" flexDirection="column" gap={3}>
       {/* Concurrent Visits */}
       <DashboardCard
-        title="Concurrent Visits"
+        title="Scans Last 30 Days"
+        subtitle="Total Scans"
         action={
           <Select
             labelId="year-dd"
@@ -99,9 +100,9 @@ const StatsPage = () => {
             size="small"
             onChange={handleChange}
           >
-            <MenuItem value={1}>2024</MenuItem>
-            <MenuItem value={2}>2023</MenuItem>
-            <MenuItem value={3}>2022</MenuItem>
+            <MenuItem value={1}>March</MenuItem>
+            <MenuItem value={2}>February</MenuItem>
+            <MenuItem value={3}>January</MenuItem>
           </Select>
         }
       >
@@ -115,32 +116,37 @@ const StatsPage = () => {
       </DashboardCard>
 
       {/* Performance Donut Charts */}
-      <Box display="flex" flexWrap="wrap" justifyContent="space-between" gap={2}>
-        {[70, 85, 62].map((value, index) => (
-          <DashboardCard key={index} title="Performance" sx={{ flex: '1 1 30%', minWidth: 250 }}>
-            <Chart
-              options={{
-                chart: { type: 'donut' },
-                labels: ['Completed', 'Remaining'],
-                legend: { show: false },
-                dataLabels: { enabled: false },
-                colors: [primary, '#E0E0E0'],
-              }}
-              series={[value, 100 - value]}
-              type="donut"
-              width="100%"
-              height={260}
-            />
-            <Box textAlign="center" mt={2}>
-              <Typography variant="h6">{value}%</Typography>
-              <Typography variant="caption" color="text.secondary">Efficiency</Typography>
-            </Box>
-          </DashboardCard>
-        ))}
+      <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center" alignItems="center">
+        {[70, 85, 62].map((value, index) => {
+          const randomId = Math.floor(Math.random() * 1000); // Generate a random ID
+          return (
+            <DashboardCard key={index} title={`Scanner ${randomId}`}>
+              <>
+                <Chart
+                  options={{
+                    chart: { type: 'donut' },
+                    labels: ['Completed', 'Remaining'],
+                    legend: { show: false },
+                    dataLabels: { enabled: false },
+                    colors: [primary, '#E0E0E0'],
+                  }}
+                  series={[value, 100 - value]}
+                  type="donut"
+                  width="100%"
+                  height={260}
+                />
+                <Box textAlign="center" mt={2}>
+                  <Typography variant="h6">{value}%</Typography>
+                  <Typography variant="caption" color="text.secondary">Efficiency</Typography>
+                </Box>
+              </>
+            </DashboardCard>
+          );
+        })}
       </Box>
 
       {/* Traffic Sources */}
-      <DashboardCard title="Traffic Sources">
+      <DashboardCard title="APNs Scanned" subtitle="APNs scanned by each scanner in the last week"> 
         <Chart
           options={trafficOptions}
           series={trafficSeries}
