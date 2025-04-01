@@ -1,16 +1,34 @@
-# <a href="https://modernize-nextjs-free.vercel.app/?ref=5">Modernize-nextjs-free</a>
-Modernize Free Next.js 14 Admin Template with Material Ui + Typescript 
-<!-- Place this tag where you want the button to render. -->
-<a class="github-button" href="https://github.com/adminmart/Modernize-Nextjs-Free" data-color-scheme="no-preference: light; light: light; dark: dark;" data-icon="octicon-star" data-size="large" aria-label="Star adminmart/Modernize-Nextjs-Free on GitHub">Give a Star</a>
-<!-- Main image of Template -->
+# 🛡️ AirSecure
 
-  <img src="https://adminmart.com/wp-content/uploads/2023/03/modernize-free-next-js-admin-template.png" />
+**AirSecure** is a secure web application built with **Next.js** and **PostgreSQL**, designed to provide robust authentication and user management. It features a clean, scalable architecture and a responsive UI built with MUI.
 
+---
+
+## 🚀 Features
+
+- 🔐 JWT-based authentication with HttpOnly cookies
+- 🧭 Protected routes using middleware
+- 🖼️ Clean UI with MUI and Emotion styling
+- 📄 Custom login and signup forms
+- 👋 Personalized greeting with user name after login
+- ⛔ Logout functionality via API
+- 🧩 Modular and scalable code structure
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js (App Router), React, MUI (Material UI), Emotion
+- **Backend:** Next.js API Routes
+- **Database:** PostgreSQL (local setup)
+- **Authentication:** JWT (JSON Web Tokens), HttpOnly cookies
+
+---
 
 
 # Installation 👨🏻‍💻
 
-> We recommend you use npm
+> To setup a local application, follow the instructions
 
 1. Install all packages
 
@@ -18,17 +36,20 @@ Modernize Free Next.js 14 Admin Template with Material Ui + Typescript
 npm i
 ```
 
-2. Run Development Server
+2. Modify the DB connection in .env to your db
+
+```
+DATABASE_URL=postgresql://your_username:your_password@localhost:5432/your_db_name
+```
+
+3. Run DB migrate
+
+```
+npx prisma migrate dev
+```
+
+4. Run Dev server
 
 ```
 npm run dev
 ```
-
-3. Build your project
-
-```
-npm run build
-```
-
-
-
