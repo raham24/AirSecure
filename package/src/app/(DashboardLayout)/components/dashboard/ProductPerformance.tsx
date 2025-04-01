@@ -1,4 +1,3 @@
-
 import {
     Typography, Box,
     Table,
@@ -13,42 +12,37 @@ import DashboardCard from '@/app/(DashboardLayout)//components/shared/DashboardC
 const products = [
     {
         id: "1",
-        name: "Sunil Joshi",
-        pname: "Elite Admin",
+        name: "John Doe",
         priority: "Low",
         pbg: "primary.main",
+        status: "Active",
     },
     {
         id: "2",
-        name: "Andrew McDownland",
-        pname: "Real Homes WP Theme",
+        name: "John Doe",
         priority: "Medium",
         pbg: "secondary.main",
-        
+        status: "Inactive",
     },
     {
         id: "3",
-        name: "Christopher Jamil",
-        pname: "MedicalPro WP Theme",
+        name: "John Doe",
         priority: "High",
         pbg: "error.main",
-       
+        status: "Active",
     },
     {
         id: "4",
-        name: "Nirav Joshi",
-        pname: "Hosting Press HTML",
+        name: "John Doe",
         priority: "Critical",
         pbg: "success.main",
-       
+        status: "Inactive",
     },
 ];
 
-
 const ProductPerformance = () => {
     return (
-
-        <DashboardCard title="Product Performance">
+        <DashboardCard title="Active Tickets">
             <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
                 <Table
                     aria-label="simple table"
@@ -62,11 +56,6 @@ const ProductPerformance = () => {
                             <TableCell>
                                 <Typography variant="subtitle2" fontWeight={600}>
                                     Id Number
-                                </Typography>
-                            </TableCell>
-                            <TableCell>
-                                <Typography variant="subtitle2" fontWeight={600}>
-                                    Assigned
                                 </Typography>
                             </TableCell>
                             <TableCell>
@@ -88,7 +77,7 @@ const ProductPerformance = () => {
                     </TableHead>
                     <TableBody>
                         {products.map((product) => (
-                            <TableRow key={product.name}>
+                            <TableRow key={product.id}>
                                 <TableCell>
                                     <Typography
                                         sx={{
@@ -100,30 +89,8 @@ const ProductPerformance = () => {
                                     </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                        }}
-                                    >
-                                        <Box>
-                                            <Typography variant="subtitle2" fontWeight={600}>
-                                                {product.name}
-                                            </Typography>
-                                            <Typography
-                                                color="textSecondary"
-                                                sx={{
-                                                    fontSize: "13px",
-                                                }}
-                                            >
-
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                </TableCell>
-                                <TableCell>
-                                    <Typography color="textSecondary" variant="subtitle2" fontWeight={400}>
-                                        {product.pname}
+                                    <Typography variant="subtitle2" fontWeight={600}>
+                                        {product.name}
                                     </Typography>
                                 </TableCell>
                                 <TableCell>
@@ -138,6 +105,15 @@ const ProductPerformance = () => {
                                     ></Chip>
                                 </TableCell>
                                 <TableCell align="right">
+                                    <Typography
+                                        sx={{
+                                            fontSize: "15px",
+                                            fontWeight: "500",
+                                            color: product.status === "Active" ? "green" : "red",
+                                        }}
+                                    >
+                                        {product.status}
+                                    </Typography>
                                 </TableCell>
                             </TableRow>
                         ))}
