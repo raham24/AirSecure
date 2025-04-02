@@ -1,6 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Card,
+  CardContent,
+  Stack,
+  CircularProgress,
+} from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
 
 type User = {
   id: number;
@@ -31,41 +41,52 @@ export default function UsersPage() {
   }, []);
 
   if (error) {
-    return <p style={{ padding: 24, color: "red" }}>{error}</p>;
+    return (
+      <Box p={4}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
   }
 
   if (!users) {
-    return <p style={{ padding: 24 }}>Loading...</p>;
+    return (
+      <Box p={4}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
+    <Box p={4}>
+      <Typography variant="h4" gutterBottom>
         Registered Users
-      </h1>
-      <ul style={{ display: "grid", gap: 16 }}>
+      </Typography>
+
+      <Stack spacing={2}>
         {users.map((user) => (
-          <li
-            key={user.id}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: 8,
-              padding: 16,
-            }}
-          >
-            <div>
-              <strong>Name:</strong> {user.name ?? "No name"}
-            </div>
-            <div>
-              <strong>Email:</strong> {user.email}
-            </div>
-            <div>
-              <strong>Joined:</strong>{" "}
-              {new Date(user.createdAt).toLocaleString()}
-            </div>
-          </li>
+          <Card key={user.id} variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Avatar sx={{ bgcolor: "primary.main" }}>
+                  <PersonIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="subtitle1">
+                    <strong>Name:</strong> {user.name ?? "No name"}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    <strong>Email:</strong> {user.email}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    <strong>Joined:</strong>{" "}
+                    {new Date(user.createdAt).toLocaleString()}
+                  </Typography>
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
         ))}
-      </ul>
-    </div>
+      </Stack>
+    </Box>
   );
 }
