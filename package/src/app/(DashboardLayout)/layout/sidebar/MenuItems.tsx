@@ -8,6 +8,7 @@ import {
   IconMoodHappy,
   IconTypography,
   IconUserPlus,
+  IconUserCircle,
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -36,6 +37,12 @@ const Menuitems = [
     title: "Submit A Ticket",
     icon: IconTicket,
     href: "/ticket",
+  },
+  {
+    id: uniqueId(),
+    title: "Users Management",
+    icon: IconUserCircle,
+    href: "/users",
   },
 
   {
