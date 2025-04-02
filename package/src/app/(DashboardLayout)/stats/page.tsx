@@ -1,11 +1,18 @@
 'use client';
-import React from 'react';
-import { Select, MenuItem, Box, Typography } from '@mui/material';
+
+import React, { useEffect, useState } from 'react';
+import {
+  Select,
+  MenuItem,
+  Box,
+  Typography,
+  CircularProgress,
+} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const StatsPage = () => {
   const [month, setMonth] = React.useState('1');
@@ -14,6 +21,47 @@ const StatsPage = () => {
   const theme = useTheme();
   const primary = theme.palette.primary.main;
   const secondary = theme.palette.secondary.main;
+
+  // 👇 Auth-related state
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/users/me')
+      .then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json();
+          setError(err.error || 'Unauthorized');
+          setLoading(false);
+          return;
+        }
+        const data = await res.json();
+        setUser(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError('Failed to verify user.');
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <Box p={4}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={4}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
 
   // Area Chart: Concurrent Visits
   const areaOptions: any = {
@@ -146,7 +194,7 @@ const StatsPage = () => {
       </Box>
 
       {/* Traffic Sources */}
-      <DashboardCard title="APNs Scanned" subtitle="APNs scanned by each scanner in the last week"> 
+      <DashboardCard title="APNs Scanned" subtitle="APNs scanned by each scanner in the last week">
         <Chart
           options={trafficOptions}
           series={trafficSeries}
