@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthUser } from "@/utils/auth"; // You'll create this
+import { getAuthUser } from "@/utils/auth"; 
 
 export async function GET(req: Request) {
   const user = await getAuthUser(req);

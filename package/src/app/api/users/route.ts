@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { getAuthUser } from "@/utils/auth"; // You'll create this
-import { prisma } from "@/utils/prisma"; // Adjust the import path as necessary
-
+import { getAuthUser } from "@/utils/auth";
+import { prisma } from "@/utils/prisma";
 export async function GET(req: Request) {
   const user = await getAuthUser(req);
   if (!user) {

@@ -24,7 +24,7 @@ const TicketPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/users/me') // ⬅️ you can replace this with any auth-check endpoint
+    fetch('/api/users/me') 
       .then(async (res) => {
         if (!res.ok) {
           const err = await res.json();
