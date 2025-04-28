@@ -4,7 +4,7 @@
   
 ![AirSecure](./assets/images/dark-logo.svg)
 
-**Secure authentication and user management for Next.js applications**
+**Web Application for a hardware-based network security tool called AirSecure**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
@@ -12,7 +12,7 @@
 
 ## Overview
 
-AirSecure is a production-ready authentication system built on Next.js and PostgreSQL. It provides a secure, scalable foundation for web applications requiring user authentication, featuring JWT-based security with HttpOnly cookies and a clean, responsive UI powered by Material UI.
+AirSecure is a production-ready authentication system built on Next.js and PostgreSQL. It provides a secure, scalable foundation for web applications requiring user authentication, featuring JWT-based security with HttpOnly cookies and a clean, responsive UI powered by Material UI. It acts as a front-end for our Machine Learning and Hardware based tool for flagging RougeAps and Evil Twin networks.
 
 ## Features
 
