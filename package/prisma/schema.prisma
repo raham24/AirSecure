@@ -33,3 +33,13 @@ model Session {
   createdAt DateTime @default(now())
   expiresAt DateTime
 }
+ 
+
+model Ticket {
+  id       Int      @id @default(autoincrement())
+  title    String
+  priority String
+  status   String
+  assignee String
+  created  DateTime @default(now())
+}

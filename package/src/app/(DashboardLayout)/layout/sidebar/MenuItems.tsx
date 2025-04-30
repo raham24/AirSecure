@@ -8,6 +8,7 @@ import {
   IconMoodHappy,
   IconTypography,
   IconUserPlus,
+  IconFileCheck
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -37,6 +38,12 @@ const Menuitems = [
     icon: IconTicket,
     href: "/ticket",
   },
+  {
+    title: "Ticket Management",
+    icon: IconFileCheck,
+    href: "/ticket-management", 
+  },
+  
 
   {
     navlabel: true,
