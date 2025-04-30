@@ -9,6 +9,7 @@ import {
   IconTypography,
   IconUserPlus,
   IconUserCircle,
+  IconFileCheck,
 } from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -44,6 +45,12 @@ const Menuitems = [
     icon: IconUserCircle,
     href: "/users",
   },
+  {
+    title: "Ticket Management",
+    icon: IconFileCheck,
+    href: "/ticket-management", 
+  },
+  
 
   {
     navlabel: true,
