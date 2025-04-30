@@ -22,7 +22,7 @@ const StatsPage = () => {
   const primary = theme.palette.primary.main;
   const secondary = theme.palette.secondary.main;
 
-  // 👇 Auth-related state
+ 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +32,7 @@ const StatsPage = () => {
       .then(async (res) => {
         if (!res.ok) {
           const err = await res.json();
-          setError(err.error || 'Unauthorized');
+          setError(err.error || 'Please login to continue');
           setLoading(false);
           return;
         }
