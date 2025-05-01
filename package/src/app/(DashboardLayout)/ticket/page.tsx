@@ -7,8 +7,10 @@ import {
   TextField,
   Button,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { set } from 'lodash';
 
 type AuthUser = {
   id: number;
@@ -21,6 +23,7 @@ const TicketPage = () => {
 
   const [user, setUser] = useState<AuthUser | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [statusCode, setStatusCode] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +32,8 @@ const TicketPage = () => {
         if (!res.ok) {
           const err = await res.json();
           setError(err.error || 'Unauthorized');
+          setStatusCode(res.status);
+          console.log(setStatusCode);
           setLoading(false);
           return;
         }
@@ -52,12 +57,46 @@ const TicketPage = () => {
   }
 
   if (error) {
+    let alertWidth = '400px';
+  
+    if (statusCode === 401) {
+      alertWidth = '210px';
+    }
+    if (statusCode === 403) {
+      alertWidth = '300px';
+    }
+  
     return (
-      <Box p={4}>
-        <Typography color="error">{error}</Typography>
+      <Box
+        display="flex"
+        justifyContent="center"
+        mt={4}
+      >
+        <Alert
+          severity="error"
+          sx={{
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            width: alertWidth,
+            textAlign: 'center',
+          }}
+        >
+          {error}
+        </Alert>
       </Box>
     );
   }
+  
+  
+  
+
+  // if (error) {
+  //   return (
+  //     <Box p={4}>
+  //       <Alert severity="error">{error}</Alert>
+  //     </Box>
+  //   );
+  // }
 
   return (
     <Box p={4}>

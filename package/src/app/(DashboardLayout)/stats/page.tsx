@@ -61,31 +61,29 @@ const StatsPage = () => {
   const [statsLoading, setStatsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statsData, setStatsData] = useState<StatsData | null>(null);
+  const [statusCode, setStatusCode] = useState<number | null>(null);
 
   // Fetch user info
   useEffect(() => {
-    fetch('/api/users/me')
-      .then(async (res) => {
-        if (!res.ok) {
-          if (res.status === 401) {
-            router.push('/login');
+      fetch('/api/users/me') 
+        .then(async (res) => {
+          if (!res.ok) {
+            const err = await res.json();
+            setError(err.error || 'Unauthorized');
+            setStatusCode(res.status);
+            setLoading(false);
             return;
           }
-          const err = await res.json();
-          setError(err.error || 'Please login to continue');
+          const userData = await res.json();
+          setUser(userData);
           setLoading(false);
-          return;
-        }
-        const data = await res.json();
-        setUser(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError('Failed to verify user.');
-        setLoading(false);
-      });
-  }, [router]);
+        })
+        .catch((err) => {
+          setError('Failed to verify user.');
+          console.error(err);
+          setLoading(false);
+        });
+    }, []);
 
   // Fetch stats data
   useEffect(() => {
@@ -119,10 +117,33 @@ const StatsPage = () => {
     );
   }
 
-  if (error) {
+if (error) {
+    let alertWidth = '400px';
+  
+    if (statusCode === 401) {
+      alertWidth = '210px';
+    }
+    if (statusCode === 403) {
+      alertWidth = '300px';
+    }
+  
     return (
-      <Box p={4}>
-        <Alert severity="error">{error}</Alert>
+      <Box
+        display="flex"
+        justifyContent="center"
+        mt={4}
+      >
+        <Alert
+          severity="error"
+          sx={{
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            width: alertWidth,
+            textAlign: 'center',
+          }}
+        >
+          {error}
+        </Alert>
       </Box>
     );
   }

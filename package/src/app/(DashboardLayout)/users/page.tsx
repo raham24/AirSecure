@@ -9,6 +9,7 @@ import {
   CardContent,
   Stack,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 
@@ -22,6 +23,7 @@ type User = {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [statusCode, setStatusCode] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/users")
@@ -29,6 +31,7 @@ export default function UsersPage() {
         if (!res.ok) {
           const err = await res.json();
           setError(err.error || "Unauthorized");
+          setStatusCode(res.status);
           return;
         }
         const data = await res.json();
@@ -41,12 +44,35 @@ export default function UsersPage() {
   }, []);
 
   if (error) {
-    return (
-      <Box p={4}>
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
-  }
+      let alertWidth = '400px';
+    
+      if (statusCode === 401) {
+        alertWidth = '210px';
+      }
+      if (statusCode === 403) {
+        alertWidth = '300px';
+      }
+    
+      return (
+        <Box
+          display="flex"
+          justifyContent="center"
+          mt={4}
+        >
+          <Alert
+            severity="error"
+            sx={{
+              backgroundColor: '#f8d7da',
+              color: '#721c24',
+              width: alertWidth,
+              textAlign: 'center',
+            }}
+          >
+            {error}
+          </Alert>
+        </Box>
+      );
+    }
 
   if (!users) {
     return (
