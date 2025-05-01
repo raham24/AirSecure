@@ -10,6 +10,11 @@ import {
   Stack,
   CircularProgress,
   Alert,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 
@@ -18,6 +23,7 @@ type User = {
   name: string | null;
   email: string;
   createdAt: string;
+  isAdmin: boolean;
 };
 
 type AuthUser = {
@@ -33,10 +39,11 @@ export default function UsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusCode, setStatusCode] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Admin authentication check
   useEffect(() => {
-    fetch("/api/users/admin")
+    fetch("/api/users/admin", { credentials: "include" })
       .then(async (res) => {
         if (!res.ok) {
           const err = await res.json();
@@ -56,10 +63,9 @@ export default function UsersPage() {
       });
   }, []);
 
-  // Fetch users if authenticated as admin
   useEffect(() => {
     if (!authUser) return;
-    fetch("/api/users")
+    fetch("/api/users", { credentials: "include" })
       .then(async (res) => {
         if (!res.ok) {
           const err = await res.json();
@@ -76,6 +82,26 @@ export default function UsersPage() {
       });
   }, [authUser]);
 
+  const handleAdminToggle = async () => {
+    if (!selectedUser) return;
+    try {
+      const res = await fetch(`/api/users/${selectedUser.id}/toggle-admin`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error("Failed to update admin status");
+      }
+      const updated = await res.json();
+      setUsers((prev) =>
+        prev?.map((u) => (u.id === updated.id ? updated : u)) || null
+      );
+      setDialogOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (loading) {
     return (
       <Box p={4} display="flex" justifyContent="center">
@@ -85,19 +111,19 @@ export default function UsersPage() {
   }
 
   if (error) {
-    let alertWidth = '400px';
-    if (statusCode === 401) alertWidth = '210px';
-    if (statusCode === 403) alertWidth = '265px';
+    let alertWidth = "400px";
+    if (statusCode === 401) alertWidth = "210px";
+    if (statusCode === 403) alertWidth = "265px";
 
     return (
       <Box display="flex" justifyContent="center" mt={4}>
         <Alert
           severity="error"
           sx={{
-            backgroundColor: '#f8d7da',
-            color: '#721c24',
+            backgroundColor: "#f8d7da",
+            color: "#721c24",
             width: alertWidth,
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
           {error}
@@ -106,45 +132,101 @@ export default function UsersPage() {
     );
   }
 
-  if (!users) {
-    return (
-      <Box p={4}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
     <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        Registered Users
-      </Typography>
-
-      <Stack spacing={2}>
-        {users.map((user) => (
-          <Card key={user.id} variant="outlined" sx={{ borderRadius: 3 }}>
+      <Box display="flex" flexWrap="wrap" justifyContent="center" gap={2}>
+        {users?.map((user) => (
+          <Card
+            key={user.id}
+            variant="outlined"
+            sx={{
+              borderRadius: 3,
+              textAlign: "center",
+              width: 240,
+              m: 1,
+              py: 3,
+              flexGrow: 0,
+              flexShrink: 0,
+              flexBasis: "240px",
+            }}
+          >
             <CardContent>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar sx={{ bgcolor: "primary.main" }}>
+              <Stack spacing={1} alignItems="center">
+                <Avatar sx={{ bgcolor: "primary.main", width: 60, height: 60 }}>
                   <PersonIcon />
                 </Avatar>
-                <Box>
-                  <Typography variant="subtitle1">
-                    <strong>Name:</strong> {user.name ?? "No name"}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    <strong>Email:</strong> {user.email}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    <strong>Joined:</strong>{" "}
-                    {new Date(user.createdAt).toLocaleString()}
-                  </Typography>
-                </Box>
+                <Typography variant="h6">
+                  {user.name ?? "No name"}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {user.email}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Joined: {new Date(user.createdAt).toLocaleString()}
+                </Typography>
+                <Typography variant="body1" mt={1}>
+                  Role: {user.isAdmin ? "Admin" : "User"}
+                </Typography>
+
+                {/* Action Buttons */}
+                {authUser?.id !== user.id && (
+                  user.isAdmin ? (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setDialogOpen(true);
+                      }}
+                    >
+                      Revoke Admin
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setDialogOpen(true);
+                      }}
+                    >
+                      Make Admin
+                    </Button>
+                  )
+                )}
               </Stack>
             </CardContent>
           </Card>
         ))}
-      </Stack>
+      </Box>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle>Confirm Admin Action</DialogTitle>
+        <DialogContent>
+          {selectedUser?.isAdmin ? (
+            <>
+              Are you sure you want to <strong>revoke</strong> admin access
+              from <strong>{selectedUser.name}</strong>?
+            </>
+          ) : (
+            <>
+              Are you sure you want to <strong>grant</strong> admin access to{" "}
+              <strong>{selectedUser?.name}</strong>?
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button onClick={handleAdminToggle} color="primary" autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
