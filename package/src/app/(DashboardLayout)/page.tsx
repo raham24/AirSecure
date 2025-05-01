@@ -2,11 +2,11 @@
 import { Grid, Box } from '@mui/material';
 import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
 // components
-import SalesOverview from '@/app/(DashboardLayout)/components/dashboard/SalesOverview';
-import YearlyBreakup from '@/app/(DashboardLayout)/components/dashboard/YearlyBreakup';
-import RecentTransactions from '@/app/(DashboardLayout)/components/dashboard/RecentTransactions';
-import ProductPerformance from '@/app/(DashboardLayout)/components/dashboard/ProductPerformance';
-import MonthlyEarnings from '@/app/(DashboardLayout)/components/dashboard/MonthlyEarnings';
+import SalesOverview from '@/app/(DashboardLayout)/components/dashboard/YearlyScans';
+import YearlyBreakup from '@/app/(DashboardLayout)/components/dashboard/TicketsBreakdown';
+import RecentTransactions from '@/app/(DashboardLayout)/components/dashboard/RecentScans';
+import ProductPerformance from '@/app/(DashboardLayout)/components/dashboard/ActiveTickets';
+import MonthlyEarnings from '@/app/(DashboardLayout)/components/dashboard/ActiveDevices';
 
 const Dashboard = () => {
   return (

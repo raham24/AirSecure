@@ -21,7 +21,7 @@ const MonthlyEarnings = () => {
       toolbar: {
         show: false,
       },
-      height: 90, // Increased from 60 to 90
+      height: 90, 
       sparkline: {
         enabled: true,
       },
@@ -47,7 +47,7 @@ const MonthlyEarnings = () => {
     {
       name: '',
       color: secondary,
-      data: [25, 66, 20, 40, 12, 58, 20],
+      data: [25, 66, 20, 40, 89, 58, 20],
     },
   ];
 
