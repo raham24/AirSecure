@@ -1,36 +1,10 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { cookies } from 'next/headers';
-import { verifyJwt } from '@/utils/jwt';
 
 const prisma = new PrismaClient();
 
-type JwtPayload = {
-  userId: number;
-  email: string;
-  isAdmin: boolean;
-};
-
 export async function GET(req: Request) {
   try {
-    const token = cookies().get('token')?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized: No token' }, { status: 401 });
-    }
-
-    const decoded = verifyJwt(token);
-
-    if (!decoded || typeof decoded !== 'object' || !('userId' in decoded)) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    const { isAdmin } = decoded as JwtPayload;
-
-    if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
-
     const url = new URL(req.url);
     const timeframe = url.searchParams.get('timeframe') || '30d';
 

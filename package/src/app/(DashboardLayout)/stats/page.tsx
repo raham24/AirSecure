@@ -65,7 +65,7 @@ const StatsPage = () => {
 
   // Fetch user info
   useEffect(() => {
-      fetch('/api/users/me') 
+      fetch('/api/users/admin') 
         .then(async (res) => {
           if (!res.ok) {
             const err = await res.json();
@@ -124,7 +124,7 @@ if (error) {
       alertWidth = '210px';
     }
     if (statusCode === 403) {
-      alertWidth = '300px';
+      alertWidth = '265px';
     }
   
     return (

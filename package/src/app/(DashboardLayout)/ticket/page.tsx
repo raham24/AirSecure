@@ -27,13 +27,12 @@ const TicketPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/users/me') 
+    fetch('/api/users/basic') 
       .then(async (res) => {
         if (!res.ok) {
           const err = await res.json();
           setError(err.error || 'Unauthorized');
           setStatusCode(res.status);
-          console.log(setStatusCode);
           setLoading(false);
           return;
         }
@@ -47,6 +46,7 @@ const TicketPage = () => {
         setLoading(false);
       });
   }, []);
+  
 
   if (loading) {
     return (
