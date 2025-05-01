@@ -7,30 +7,70 @@ import {
   Box,
   Typography,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
+interface TimeSeriesData {
+  x: string;
+  y: number;
+}
+
+interface DeviceEfficiency {
+  id: number;
+  name: string;
+  serialNumber: string;
+  efficiency: number;
+  totalScans: number;
+}
+
+interface ApnsByDevice {
+  name: string;
+  scanCount: number;
+}
+
+interface StatsData {
+  timeSeriesData: TimeSeriesData[];
+  deviceEfficiency: DeviceEfficiency[];
+  apnsByDevice: ApnsByDevice[];
+}
+
+interface User {
+  id: number;
+  name: string | null;
+  email: string;
+  isAdmin: boolean;
+}
+
 const StatsPage = () => {
-  const [month, setMonth] = React.useState('1');
-  const handleChange = (event: any) => setMonth(event.target.value);
+  const [timeframe, setTimeframe] = useState('30d');
+  const handleChange = (event: any) => setTimeframe(event.target.value);
 
   const theme = useTheme();
+  const router = useRouter();
   const primary = theme.palette.primary.main;
   const secondary = theme.palette.secondary.main;
 
- 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [statsData, setStatsData] = useState<StatsData | null>(null);
 
+  // Fetch user info
   useEffect(() => {
     fetch('/api/users/me')
       .then(async (res) => {
         if (!res.ok) {
+          if (res.status === 401) {
+            router.push('/login');
+            return;
+          }
           const err = await res.json();
           setError(err.error || 'Please login to continue');
           setLoading(false);
@@ -45,11 +85,35 @@ const StatsPage = () => {
         setError('Failed to verify user.');
         setLoading(false);
       });
-  }, []);
+  }, [router]);
+
+  // Fetch stats data
+  useEffect(() => {
+    if (!user) return;
+    
+    setStatsLoading(true);
+    fetch(`/api/stats?timeframe=${timeframe}`)
+      .then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json();
+          setError(err.error || 'Failed to fetch stats data');
+          setStatsLoading(false);
+          return;
+        }
+        const data = await res.json();
+        setStatsData(data);
+        setStatsLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError('Failed to fetch stats data');
+        setStatsLoading(false);
+      });
+  }, [user, timeframe]);
 
   if (loading) {
     return (
-      <Box p={4}>
+      <Box p={4} display="flex" justifyContent="center">
         <CircularProgress />
       </Box>
     );
@@ -58,12 +122,12 @@ const StatsPage = () => {
   if (error) {
     return (
       <Box p={4}>
-        <Typography color="error">{error}</Typography>
+        <Alert severity="error">{error}</Alert>
       </Box>
     );
   }
 
-  // Area Chart: Concurrent Visits
+  // Area Chart: Scans Over Time
   const areaOptions: any = {
     chart: {
       type: 'area',
@@ -77,28 +141,22 @@ const StatsPage = () => {
     dataLabels: { enabled: false },
     xaxis: {
       type: 'datetime',
-      categories: [
-        '2025-03-27T00:00:00.000Z',
-        '2025-03-27T06:00:00.000Z',
-        '2025-03-27T12:00:00.000Z',
-        '2025-03-27T18:00:00.000Z',
-        '2025-03-27T23:59:59.000Z',
-      ],
+      categories: statsData?.timeSeriesData.map(item => item.x) || [],
     },
     tooltip: {
-      x: { format: 'HH:mm' },
+      x: { format: 'yyyy-MM-dd' },
     },
     colors: [primary],
   };
 
   const areaSeries: any = [
     {
-      name: 'Visitors',
-      data: [800, 1800, 2800, 3200, 2500],
+      name: 'Scans',
+      data: statsData?.timeSeriesData.map(item => item.y) || [],
     },
   ];
 
-  // Bar Chart: Traffic Sources
+  // Bar Chart: APNs by Device
   const trafficOptions: any = {
     chart: {
       type: 'bar',
@@ -113,7 +171,7 @@ const StatsPage = () => {
     },
     dataLabels: { enabled: false },
     xaxis: {
-      categories: ['Scanner 1', 'Scanner 2', 'Scanner 3', 'Scanner 4', 'Scanner 5'],
+      categories: statsData?.apnsByDevice.map(item => item.name) || [],
     },
     yaxis: {
       title: { text: 'APNs' },
@@ -122,7 +180,7 @@ const StatsPage = () => {
     colors: [primary],
     tooltip: {
       y: {
-        formatter: (val: number) => `${val} visitors`,
+        formatter: (val: number) => `${val} APNs`,
       },
     },
   };
@@ -130,45 +188,60 @@ const StatsPage = () => {
   const trafficSeries: any = [
     {
       name: 'APNs Scanned',
-      data: [50, 80, 70, 100, 90],
+      data: statsData?.apnsByDevice.map(item => item.scanCount) || [],
     },
   ];
+
+  const timeframeLabels: Record<string, string> = {
+    '7d': 'Last 7 Days',
+    '30d': 'Last 30 Days',
+    '90d': 'Last 90 Days',
+  };
 
   return (
     <Box display="flex" flexDirection="column" gap={3}>
       {/* Concurrent Visits */}
       <DashboardCard
-        title="Scans Last 30 Days"
+        title={`Scans ${timeframeLabels[timeframe]}`}
         subtitle="Total Scans"
         action={
           <Select
-            labelId="year-dd"
-            id="year-dd"
-            value={month}
+            labelId="timeframe-dd"
+            id="timeframe-dd"
+            value={timeframe}
             size="small"
             onChange={handleChange}
           >
-            <MenuItem value={1}>March</MenuItem>
-            <MenuItem value={2}>February</MenuItem>
-            <MenuItem value={3}>January</MenuItem>
+            <MenuItem value="7d">Last 7 Days</MenuItem>
+            <MenuItem value="30d">Last 30 Days</MenuItem>
+            <MenuItem value="90d">Last 90 Days</MenuItem>
           </Select>
         }
       >
-        <Chart
-          options={areaOptions}
-          series={areaSeries}
-          type="area"
-          height={370}
-          width="100%"
-        />
+        {statsLoading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height={370}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Chart
+            options={areaOptions}
+            series={areaSeries}
+            type="area"
+            height={370}
+            width="100%"
+          />
+        )}
       </DashboardCard>
 
       {/* Performance Donut Charts */}
       <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center" alignItems="center">
-        {[70, 85, 62].map((value, index) => {
-          const randomId = Math.floor(Math.random() * 1000); // Generate a random ID
-          return (
-            <DashboardCard key={index} title={`Scanner ${randomId}`}>
+        {statsLoading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" p={4}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          statsData?.deviceEfficiency.map((device) => (
+            <DashboardCard key={device.id} title={device.name}>
               <>
                 <Chart
                   options={{
@@ -178,30 +251,39 @@ const StatsPage = () => {
                     dataLabels: { enabled: false },
                     colors: [primary, '#E0E0E0'],
                   }}
-                  series={[value, 100 - value]}
+                  series={[device.efficiency, 100 - device.efficiency]}
                   type="donut"
                   width="100%"
                   height={260}
                 />
                 <Box textAlign="center" mt={2}>
-                  <Typography variant="h6">{value}%</Typography>
+                  <Typography variant="h6">{device.efficiency}%</Typography>
                   <Typography variant="caption" color="text.secondary">Efficiency</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total Scans: {device.totalScans}
+                  </Typography>
                 </Box>
               </>
             </DashboardCard>
-          );
-        })}
+          ))
+        )}
       </Box>
 
       {/* Traffic Sources */}
       <DashboardCard title="APNs Scanned" subtitle="APNs scanned by each scanner in the last week">
-        <Chart
-          options={trafficOptions}
-          series={trafficSeries}
-          type="bar"
-          height={370}
-          width="100%"
-        />
+        {statsLoading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height={370}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Chart
+            options={trafficOptions}
+            series={trafficSeries}
+            type="bar"
+            height={370}
+            width="100%"
+          />
+        )}
       </DashboardCard>
     </Box>
   );
