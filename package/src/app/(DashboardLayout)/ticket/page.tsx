@@ -10,7 +10,6 @@ import {
   Alert,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { set } from 'lodash';
 
 type AuthUser = {
   id: number;
@@ -26,8 +25,14 @@ const TicketPage = () => {
   const [statusCode, setStatusCode] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
   useEffect(() => {
-    fetch('/api/users/basic') 
+    fetch('/api/users/basic')
       .then(async (res) => {
         if (!res.ok) {
           const err = await res.json();
@@ -46,7 +51,30 @@ const TicketPage = () => {
         setLoading(false);
       });
   }, []);
-  
+
+  const handleSubmit = async () => {
+    setSubmitLoading(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+
+    const res = await fetch('/api/tickets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, description }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setSubmitError(data.error || 'Submission failed');
+    } else {
+      setSubmitSuccess(true);
+      setTitle('');
+      setDescription('');
+    }
+
+    setSubmitLoading(false);
+  };
 
   if (loading) {
     return (
@@ -58,20 +86,11 @@ const TicketPage = () => {
 
   if (error) {
     let alertWidth = '400px';
-  
-    if (statusCode === 401) {
-      alertWidth = '210px';
-    }
-    if (statusCode === 403) {
-      alertWidth = '300px';
-    }
-  
+    if (statusCode === 401) alertWidth = '210px';
+    if (statusCode === 403) alertWidth = '300px';
+
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        mt={4}
-      >
+      <Box display="flex" justifyContent="center" mt={4}>
         <Alert
           severity="error"
           sx={{
@@ -86,17 +105,6 @@ const TicketPage = () => {
       </Box>
     );
   }
-  
-  
-  
-
-  // if (error) {
-  //   return (
-  //     <Box p={4}>
-  //       <Alert severity="error">{error}</Alert>
-  //     </Box>
-  //   );
-  // }
 
   return (
     <Box p={4}>
@@ -111,6 +119,8 @@ const TicketPage = () => {
         <TextField
           fullWidth
           variant="outlined"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. The router not tracking since for the last 24 hours"
           inputProps={{ maxLength: 100 }}
         />
@@ -125,13 +135,32 @@ const TicketPage = () => {
           variant="outlined"
           multiline
           rows={6}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="Provide as much detail as possible so we can better assist you."
         />
       </Box>
 
+      {submitError && (
+        <Box mt={3}>
+          <Alert severity="error">{submitError}</Alert>
+        </Box>
+      )}
+
+      {submitSuccess && (
+        <Box mt={3}>
+          <Alert severity="success">Ticket submitted successfully.</Alert>
+        </Box>
+      )}
+
       <Box mt={4}>
-        <Button variant="contained" color="primary">
-          Submit Ticket
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={submitLoading}
+          onClick={handleSubmit}
+        >
+          {submitLoading ? <CircularProgress size={24} /> : 'Submit Ticket'}
         </Button>
       </Box>
     </Box>
