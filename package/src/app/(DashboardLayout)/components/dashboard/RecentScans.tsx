@@ -1,4 +1,5 @@
-import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
+'use client';
+
 import {
   Timeline,
   TimelineItem,
@@ -9,91 +10,123 @@ import {
   TimelineContent,
   timelineOppositeContentClasses,
 } from '@mui/lab';
-import { Link, Typography } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert } from '@mui/material';
+import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
+import { useEffect, useState } from 'react';
+
+type Scan = {
+  id: number;
+  timestamp: string;
+  apn: string;
+  status: string;
+  device: {
+    name: string;
+  };
+};
 
 const RecentTransactions = () => {
-  return (
-    <DashboardCard title="Recent Scans">
-      <>
-        <Timeline
-          className="theme-timeline"
-          nonce={undefined}
-          onResize={undefined}
-          onResizeCapture={undefined}
+  const [scans, setScans] = useState<Scan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('/api/dashboard/scans');
+        if (!res.ok) throw new Error('Failed to fetch scans');
+        const scanData = await res.json();
+        setScans(scanData);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load scan data.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const getStatusColor = (status: string): 'primary' | 'error' | 'success' | 'warning' => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'success';
+      case 'pending':
+        return 'warning';
+      case 'failed':
+        return 'error';
+      default:
+        return 'primary';
+    }
+  };
+
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+  };
+
+  const formatScanMessage = (status: string, deviceName: string) => {
+    return `${status.charAt(0).toUpperCase() + status.slice(1)} scan in ${deviceName}`;
+  };
+
+  if (loading) {
+    return (
+      <Box p={4} display="flex" justifyContent="center">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box display="flex" justifyContent="center" mt={4}>
+        <Alert
+          severity="error"
           sx={{
-            p: 0,
-            mb: '-40px',
-            '& .MuiTimelineConnector-root': {
-              width: '1px',
-              backgroundColor: '#efefef'
-            },
-            [`& .${timelineOppositeContentClasses.root}`]: {
-              flex: 0.5,
-              paddingLeft: 0,
-            },
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            width: '300px',
+            textAlign: 'center',
           }}
         >
-          <TimelineItem>
-            <TimelineOppositeContent>09:30 am</TimelineOppositeContent>
+          {error}
+        </Alert>
+      </Box>
+    );
+  }
+
+  return (
+    <DashboardCard title="Recent Scans">
+      <Timeline
+        sx={{
+          p: 0,
+          mb: '-1',
+          '& .MuiTimelineConnector-root': {
+            width: '1px',
+            backgroundColor: '#efefef',
+          },
+          [`& .${timelineOppositeContentClasses.root}`]: {
+            flex: 0.5,
+            paddingLeft: 0,
+          },
+        }}
+      >
+        {scans.map((scan) => (
+          <TimelineItem key={scan.id}>
+            <TimelineOppositeContent>{formatTime(scan.timestamp)}</TimelineOppositeContent>
             <TimelineSeparator>
-              <TimelineDot color="primary" variant="outlined" />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>Scan - Completed. No risks were detected.</TimelineContent>
-          </TimelineItem>
-          <TimelineItem>
-            <TimelineOppositeContent>10:00 am</TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineDot color="secondary" variant="outlined" />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-              <Typography fontWeight="600">Scan - Incompleted. 1233432 risks were detected</Typography>{' '}
-              <Link href="/" underline="none">
-                High-Risk
-              </Link>
-            </TimelineContent>
-          </TimelineItem>
-          <TimelineItem>
-            <TimelineOppositeContent>12:00 am</TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineDot color="success" variant="outlined" />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>Scan - Completed. No risks were detected</TimelineContent>
-          </TimelineItem>
-          <TimelineItem>
-            <TimelineOppositeContent>09:30 am</TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineDot color="warning" variant="outlined" />
+              <TimelineDot color={getStatusColor(scan.status)} variant="outlined" />
               <TimelineConnector />
             </TimelineSeparator>
             <TimelineContent>
-              <Typography fontWeight="600">Scan - Incompleted. 34328428 risks detected</Typography>{' '}
-              <Link href="/" underline="none">
-                High- Risk
-              </Link>
+              <Typography fontWeight="600">
+                {formatScanMessage(scan.status, scan.device.name)}
+              </Typography>
+              <Typography variant="caption">Status: {scan.status}</Typography>
             </TimelineContent>
           </TimelineItem>
-          <TimelineItem>
-            <TimelineOppositeContent>09:30 am</TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineDot color="error" variant="outlined" />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-              <Typography fontWeight="600">Scan - Completed. No risks were detected. </Typography>
-            </TimelineContent>
-          </TimelineItem>
-          <TimelineItem>
-            <TimelineOppositeContent>12:00 am</TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineDot color="success" variant="outlined" />
-            </TimelineSeparator>
-            <TimelineContent>Scan - Completed. No risks were detected. </TimelineContent>
-          </TimelineItem>
-        </Timeline>
-      </>
+        ))}
+      </Timeline>
     </DashboardCard>
   );
 };

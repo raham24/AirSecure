@@ -45,15 +45,25 @@ model Ticket {
 }
 
 
+enum ScanStatus {
+  idle
+  requested
+  running
+  completed
+}
+
 model Device {
-  id           Int       @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   name         String
-  serialNumber String    @unique
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  serialNumber String      @unique
+  isActive     Boolean     @default(true)
+  scan_status  ScanStatus  @default(idle)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   scans        Scan[]
 }
+
+
 
 model Scan {
   id        Int      @id @default(autoincrement())

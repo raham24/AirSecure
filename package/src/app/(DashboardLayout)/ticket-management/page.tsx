@@ -78,7 +78,7 @@ export default function TicketAdminPage() {
         Ticket Management
       </Typography>
 
-      <FormControl sx={{ mb: 3, minWidth: 200 }}>
+      <FormControl sx={{ mt: 2, mb: 3, minWidth: 200 }}>
         <InputLabel>Filter Tickets</InputLabel>
         <Select
           value={filter}

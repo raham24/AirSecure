@@ -1,129 +1,181 @@
-import dynamic from "next/dynamic";
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
-import { useTheme } from '@mui/material/styles';
-import { Grid, Stack, Typography, Avatar } from '@mui/material';
-import { IconArrowUpLeft } from '@tabler/icons-react';
+'use client';
 
+import {
+  Typography,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Chip,
+  CircularProgress,
+  Alert,
+} from '@mui/material';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
+import { useEffect, useState } from 'react';
 
-const YearlyBreakup = () => {
-  // chart color
-  const theme = useTheme();
-  const primary = theme.palette.primary.main;
-  const primarylight = '#ecf2ff';
-  const successlight = theme.palette.success.light;
-  const resolvedColor = '#4CAF50'; 
-  const unresolvedColor = '#FF5252'; 
-
-  // chart
-  const optionscolumnchart: any = {
-    chart: {
-      type: 'donut',
-      fontFamily: "'Plus Jakarta Sans', sans-serif;",
-      foreColor: '#adb0bb',
-      toolbar: {
-        show: false,
-      },
-      height: 155,
-    },
-    colors: [resolvedColor, unresolvedColor],
-    plotOptions: {
-      pie: {
-        startAngle: 0,
-        endAngle: 360,
-        donut: {
-          size: '75%',
-          background: 'transparent',
-        },
-      },
-    },
-    tooltip: {
-      theme: theme.palette.mode === 'dark' ? 'dark' : 'light',
-      fillSeriesColor: false,
-      y: {
-        formatter: function(value: number) {
-          return value + "%"
-        },
-        title: {
-          formatter: function(seriesName: string) {
-            return seriesName + ":"
-          }
-        }
-      }
-    },
-    labels: ['Resolved', 'Unresolved'],
-    stroke: {
-      show: false,
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    legend: {
-      show: false,
-    },
-    responsive: [
-      {
-        breakpoint: 991,
-        options: {
-          chart: {
-            width: 120,
-          },
-        },
-      },
-    ],
+type Ticket = {
+  id: number;
+  title: string;
+  priority: string;
+  status: string;
+  user: {
+    name: string | null;
+    email: string;
   };
-  const seriescolumnchart: any = [90,10];
+};
+
+type AuthUser = {
+  id: number;
+  name: string | null;
+  email: string;
+  isAdmin: boolean;
+};
+
+const ProductPerformance = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [statusCode, setStatusCode] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userRes = await fetch('/api/users/admin', {
+          credentials: 'include',
+        });
+        if (!userRes.ok) {
+          const err = await userRes.json();
+          setError(err.error || 'Unauthorized');
+          setStatusCode(userRes.status);
+          setLoading(false);
+          return;
+        }
+
+        const userData = await userRes.json();
+        setAuthUser(userData);
+
+        if (!userData.isAdmin) {
+          setError('Not authorized to view this content.');
+          setLoading(false);
+          return;
+        }
+
+        const ticketRes = await fetch('api/dashboard/tickets', {
+          credentials: 'include',
+        });
+        if (!ticketRes.ok) throw new Error('Failed to fetch tickets');
+        const ticketData = await ticketRes.json();
+        setTickets(ticketData);
+      } catch (err: any) {
+        setError('Something went wrong.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority.toLowerCase()) {
+      case 'low':
+        return 'primary.main';
+      case 'medium':
+        return 'secondary.main';
+      case 'high':
+        return 'error.main';
+      case 'critical':
+        return 'success.main';
+      default:
+        return 'grey.500';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    const normalized = status.toLowerCase();
+    if (normalized === 'open') return 'green';
+    if (normalized === 'closed') return 'red';
+    return 'gray';
+  };
+
+  if (loading) {
+    return (
+      <DashboardCard title="Active Tickets">
+        <CircularProgress />
+      </DashboardCard>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardCard title="Active Tickets">
+        <Alert severity="error">{error}</Alert>
+      </DashboardCard>
+    );
+  }
 
   return (
-    <DashboardCard title="Monthly Tickets Breakup">
-      <Grid container spacing={3}>
-        {/* column */}
-        <Grid item xs={7} sm={7}>
-          <Typography variant="h3" fontWeight="700">
-            25 Tickets
-          </Typography>
-          <Stack direction="row" spacing={1} mt={3} alignItems="center"> {/* Changed mt={1} to mt={3} */}
-            <Avatar sx={{ bgcolor: successlight, width: 27, height: 27 }}>
-              <IconArrowUpLeft width={20} color="#39B69A" />
-            </Avatar>
-            <Typography variant="subtitle2" fontWeight="600">
-              +9%
-            </Typography>
-            <Typography variant="subtitle2" color="textSecondary">
-              last year
-            </Typography>
-          </Stack>
-          <Stack spacing={3} mt={5} direction="row">
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Avatar
-                sx={{ width: 9, height: 9, bgcolor: resolvedColor, svg: { display: 'none' } }}
-              ></Avatar>
-              <Typography variant="subtitle2" color="textSecondary">
-                Resolved
-              </Typography>
-            </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Avatar
-                sx={{ width: 9, height: 9, bgcolor: unresolvedColor, svg: { display: 'none' } }}
-              ></Avatar>
-              <Typography variant="subtitle2" color="textSecondary">
-                Unresolved
-              </Typography>
-            </Stack>
-          </Stack>
-        </Grid>
-        {/* column */}
-        <Grid item xs={5} sm={5}>
-          <Chart
-            options={optionscolumnchart}
-            series={seriescolumnchart}
-            type="donut"
-            height={150} width={"120%"}
-          />
-        </Grid>
-      </Grid>
+    <DashboardCard title="Active Tickets">
+      <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
+        <Table aria-label="ticket table" sx={{ whiteSpace: 'nowrap', mt: 2 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell><Typography variant="subtitle2" fontWeight={600}>Id</Typography></TableCell>
+              <TableCell><Typography variant="subtitle2" fontWeight={600}>Submitted By</Typography></TableCell>
+              <TableCell><Typography variant="subtitle2" fontWeight={600}>Title</Typography></TableCell>
+              <TableCell><Typography variant="subtitle2" fontWeight={600}>Priority</Typography></TableCell>
+              <TableCell align="right"><Typography variant="subtitle2" fontWeight={600}>Status</Typography></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tickets.map((ticket) => (
+              <TableRow key={ticket.id}>
+                <TableCell>
+                  <Typography fontSize="15px" fontWeight="500">
+                    {ticket.id}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    {ticket.user.name ?? ticket.user.email}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontSize="15px" fontWeight="500">
+                    {ticket.title}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={ticket.priority}
+                    size="small"
+                    sx={{
+                      px: '4px',
+                      backgroundColor: getPriorityColor(ticket.priority),
+                      color: '#fff',
+                    }}
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <Typography
+                    fontSize="15px"
+                    fontWeight="500"
+                    color={getStatusColor(ticket.status)}
+                  >
+                    {ticket.status}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
     </DashboardCard>
   );
 };
 
-export default YearlyBreakup;
+export default ProductPerformance;
