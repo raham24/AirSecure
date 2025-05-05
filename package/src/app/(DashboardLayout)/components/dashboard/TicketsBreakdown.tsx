@@ -1,110 +1,88 @@
 'use client';
 
-import {
-  Typography,
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Chip,
-  CircularProgress,
-  Alert,
-} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useTheme } from '@mui/material/styles';
+import { Grid, Stack, Typography, Avatar, CircularProgress, Alert } from '@mui/material';
+import { IconCalendar } from '@tabler/icons-react';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
-import { useEffect, useState } from 'react';
 
-type Ticket = {
-  id: number;
-  title: string;
-  priority: string;
-  status: string;
-  user: {
-    name: string | null;
-    email: string;
-  };
-};
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-type AuthUser = {
-  id: number;
-  name: string | null;
-  email: string;
-  isAdmin: boolean;
-};
+const YearlyBreakup = () => {
+  const theme = useTheme();
+  const primarylight = '#ecf2ff';
+  const resolvedColor = '#4CAF50';
+  const unresolvedColor = '#FF5252';
 
-const ProductPerformance = () => {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [resolved, setResolved] = useState(0);
+  const [unresolved, setUnresolved] = useState(0);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusCode, setStatusCode] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userRes = await fetch('/api/users/admin', {
-          credentials: 'include',
-        });
-        if (!userRes.ok) {
-          const err = await userRes.json();
-          setError(err.error || 'Unauthorized');
-          setStatusCode(userRes.status);
-          setLoading(false);
-          return;
+    fetch('/api/dashboard/ticket-summary', { credentials: 'include' })
+      .then(async res => {
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Failed to fetch ticket data');
         }
-
-        const userData = await userRes.json();
-        setAuthUser(userData);
-
-        if (!userData.isAdmin) {
-          setError('Not authorized to view this content.');
-          setLoading(false);
-          return;
-        }
-
-        const ticketRes = await fetch('api/dashboard/tickets', {
-          credentials: 'include',
-        });
-        if (!ticketRes.ok) throw new Error('Failed to fetch tickets');
-        const ticketData = await ticketRes.json();
-        setTickets(ticketData);
-      } catch (err: any) {
-        setError('Something went wrong.');
-        console.error(err);
-      } finally {
+        const data = await res.json();
+        setResolved(data.resolved);
+        setUnresolved(data.unresolved);
+        setTotal(data.total);
+      })
+      .catch(err => {
+        setError(err.message);
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-
-    fetchData();
+      });
   }, []);
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case 'low':
-        return 'primary.main';
-      case 'medium':
-        return 'secondary.main';
-      case 'high':
-        return 'error.main';
-      case 'critical':
-        return 'success.main';
-      default:
-        return 'grey.500';
-    }
+  const options: any = {
+    chart: {
+      type: 'donut',
+      fontFamily: "'Plus Jakarta Sans', sans-serif;",
+      foreColor: '#adb0bb',
+      toolbar: { show: false },
+      height: 155,
+    },
+    colors: [resolvedColor, unresolvedColor],
+    labels: ['Resolved', 'Unresolved'],
+    stroke: { show: false },
+    plotOptions: {
+      pie: {
+        startAngle: 0,
+        endAngle: 360,
+        donut: {
+          size: '75%',
+          background: 'transparent',
+        },
+      },
+    },
+    tooltip: {
+      theme: theme.palette.mode === 'dark' ? 'dark' : 'light',
+      fillSeriesColor: false,
+    },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+    responsive: [
+      {
+        breakpoint: 991,
+        options: {
+          chart: { width: 120 },
+        },
+      },
+    ],
   };
 
-  const getStatusColor = (status: string) => {
-    const normalized = status.toLowerCase();
-    if (normalized === 'open') return 'green';
-    if (normalized === 'closed') return 'red';
-    return 'gray';
-  };
+  const series = [resolved, unresolved];
 
   if (loading) {
     return (
-      <DashboardCard title="Active Tickets">
+      <DashboardCard title="Ticket Summary">
         <CircularProgress />
       </DashboardCard>
     );
@@ -112,70 +90,55 @@ const ProductPerformance = () => {
 
   if (error) {
     return (
-      <DashboardCard title="Active Tickets">
+      <DashboardCard title="Ticket Summary">
         <Alert severity="error">{error}</Alert>
       </DashboardCard>
     );
   }
 
   return (
-    <DashboardCard title="Active Tickets">
-      <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
-        <Table aria-label="ticket table" sx={{ whiteSpace: 'nowrap', mt: 2 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell><Typography variant="subtitle2" fontWeight={600}>Id</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2" fontWeight={600}>Submitted By</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2" fontWeight={600}>Title</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2" fontWeight={600}>Priority</Typography></TableCell>
-              <TableCell align="right"><Typography variant="subtitle2" fontWeight={600}>Status</Typography></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tickets.map((ticket) => (
-              <TableRow key={ticket.id}>
-                <TableCell>
-                  <Typography fontSize="15px" fontWeight="500">
-                    {ticket.id}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="subtitle2" fontWeight={600}>
-                    {ticket.user.name ?? ticket.user.email}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography fontSize="15px" fontWeight="500">
-                    {ticket.title}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={ticket.priority}
-                    size="small"
-                    sx={{
-                      px: '4px',
-                      backgroundColor: getPriorityColor(ticket.priority),
-                      color: '#fff',
-                    }}
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <Typography
-                    fontSize="15px"
-                    fontWeight="500"
-                    color={getStatusColor(ticket.status)}
-                  >
-                    {ticket.status}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Box>
+    <DashboardCard title="Ticket Summary (This Year)">
+      <Grid container spacing={3}>
+        <Grid item xs={7} sm={7}>
+          <Typography variant="h3" fontWeight={700}>
+            {total} Tickets
+          </Typography>
+          <Stack direction="row" spacing={1} mt={3} alignItems="center">
+            <Avatar sx={{ bgcolor: primarylight, width: 27, height: 27 }}>
+              <IconCalendar width={20} color="#1976D2" />
+            </Avatar>
+            <Typography variant="subtitle2" fontWeight={600}>
+              {new Date().getFullYear()}
+            </Typography>
+            <Typography variant="subtitle2" color="textSecondary">
+              year to date
+            </Typography>
+          </Stack>
+          <Stack spacing={3} mt={5} direction="row">
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Avatar
+                sx={{ width: 9, height: 9, bgcolor: resolvedColor, svg: { display: 'none' } }}
+              ></Avatar>
+              <Typography variant="subtitle2" color="textSecondary">
+                Resolved
+              </Typography>
+            </Stack>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Avatar
+                sx={{ width: 9, height: 9, bgcolor: unresolvedColor, svg: { display: 'none' } }}
+              ></Avatar>
+              <Typography variant="subtitle2" color="textSecondary">
+                Unresolved
+              </Typography>
+            </Stack>
+          </Stack>
+        </Grid>
+        <Grid item xs={5} sm={5}>
+          <Chart options={options} series={series} type="donut" height={150} width="120%" />
+        </Grid>
+      </Grid>
     </DashboardCard>
   );
 };
 
-export default ProductPerformance;
+export default YearlyBreakup;
