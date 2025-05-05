@@ -50,6 +50,11 @@ const Menuitems = [
     icon: IconFileCheck,
     href: "/ticket-management", 
   },
+  {
+    title: "Devices",
+    icon: IconAperture,
+    href: "/devices",
+  },
   
 
   {

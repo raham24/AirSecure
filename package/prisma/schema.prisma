@@ -57,7 +57,7 @@ model Device {
   name         String
   serialNumber String      @unique
   isActive     Boolean     @default(true)
-  scan_status  ScanStatus  @default(idle)
+  scan_status  ScanStatus
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   scans        Scan[]
