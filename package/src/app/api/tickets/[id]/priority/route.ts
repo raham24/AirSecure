@@ -6,21 +6,31 @@ const prisma = new PrismaClient();
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const user = await getAuthUser(req);
-  if (!user || !user.isAdmin) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  if (!user) {
+    return NextResponse.json({ error: 'Please login to continue' }, { status: 401 });
   }
 
-  const ticketId = parseInt(params.id);
-  const { priority } = await req.json();
-
-  if (!['low', 'medium', 'high'].includes(priority)) {
-    return NextResponse.json({ error: 'Invalid priority value' }, { status: 400 });
+  if (!user.isAdmin) {
+    return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
   }
 
-  const updated = await prisma.ticket.update({
-    where: { id: ticketId },
-    data: { priority },
-  });
+  try {
+    const ticketId = parseInt(params.id);
+    const { priority } = await req.json();
 
-  return NextResponse.json(updated);
+    if (!['low', 'medium', 'high'].includes(priority)) {
+      return NextResponse.json({ error: 'Invalid priority value' }, { status: 400 });
+    }
+
+    const updated = await prisma.ticket.update({
+      where: { id: ticketId },
+      data: { priority },
+    });
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error('Error updating ticket priority:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

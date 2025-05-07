@@ -39,7 +39,16 @@ export default function TicketAdminPage() {
     setLoading(true);
     try {
       const res = await fetch(`/api/tickets?status=${status}`);
-      if (!res.ok) throw new Error('Unauthorized or server error');
+      if (!res.ok) {
+        const err = await res.json();
+        if (res.status === 403) {
+          throw new Error('Forbidden: Admin access required');
+        }
+        if (res.status === 401) {
+          throw new Error('Please login to continue');
+        }
+        throw new Error(err.error || 'Unauthorized or server error');
+      }
       const data = await res.json();
       setTickets(data);
     } catch (err) {

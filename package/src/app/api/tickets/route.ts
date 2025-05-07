@@ -5,13 +5,13 @@ import { getAuthUser } from '@/utils/auth';
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
+  const user = await getAuthUser(req);
+
+  if (!user) {
+    return NextResponse.json({ error: 'Please login to continue' }, { status: 401 });
+  }
+
   try {
-    const user = await getAuthUser(req);
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { title, description } = await req.json();
 
     if (!title || !description) {
@@ -30,7 +30,6 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(ticket, { status: 201 });
-
   } catch (error) {
     console.error('Error creating ticket:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -38,13 +37,17 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthUser(req);
+
+  if (!user) {
+    return NextResponse.json({ error: 'Please login to continue' }, { status: 401 });
+  }
+
+  if (!user.isAdmin) {
+    return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+  }
+
   try {
-    const user = await getAuthUser(req);
-
-    if (!user || !user.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const url = new URL(req.url);
     const status = url.searchParams.get('status');
 

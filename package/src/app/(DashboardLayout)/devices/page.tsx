@@ -43,20 +43,22 @@ export default function DevicesPage() {
   useEffect(() => {
     fetch("/api/users/admin", { credentials: "include" })
       .then(async (res) => {
-        if (!res.ok) throw new Error("Unauthorized");
+        if (!res.ok) {
+          const err = await res.json();
+          if (res.status === 403) {
+            throw new Error("Forbidden: Admin access required");
+          }
+          if (res.status === 401) {
+            throw new Error("Please login to continue");
+          }
+          throw new Error(err.error || "Unauthorized");
+        }
         const data = await res.json();
         setAuthUser(data);
         setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
-        if (err.message === "Unauthorized") {
-          if (err.status === 403) {
-            setError("Forbidden: Admin access required.");
-          } else {
-          setError("Please log in to continue.");
-        }
-        }
         console.error(err);
         setLoading(false);
       });
