@@ -97,7 +97,7 @@ const ProductPerformance = () => {
 
   if (loading) {
     return (
-      <DashboardCard title="Active Tickets">
+      <DashboardCard title="Recent Tickets">
         <CircularProgress />
       </DashboardCard>
     );
@@ -105,14 +105,14 @@ const ProductPerformance = () => {
 
   if (error) {
     return (
-      <DashboardCard title="Active Tickets">
+      <DashboardCard title="Recent Tickets">
         <Alert severity="error">{error}</Alert>
       </DashboardCard>
     );
   }
 
   return (
-    <DashboardCard title="Active Tickets">
+    <DashboardCard title="Recent Tickets">
       <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
         <Table aria-label="ticket table" sx={{ whiteSpace: 'nowrap', mt: 2 }}>
           <TableHead>

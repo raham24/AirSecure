@@ -49,7 +49,14 @@ export default function DevicesPage() {
         setLoading(false);
       })
       .catch((err) => {
-        setError("Failed to verify user.");
+        setError(err.message);
+        if (err.message === "Unauthorized") {
+          if (err.status === 403) {
+            setError("Forbidden: Admin access required.");
+          } else {
+          setError("Please log in to continue.");
+        }
+        }
         console.error(err);
         setLoading(false);
       });
