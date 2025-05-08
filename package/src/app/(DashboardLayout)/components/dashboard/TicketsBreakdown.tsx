@@ -20,8 +20,14 @@ const LastScanBox = () => {
           throw new Error(err.error || 'Could not fetch scan');
         }
         const data = await res.json();
+
         setApn(data.apn);
-        setTimestamp(new Date(data.timestamp).toLocaleString());
+
+        // Add 4 hours to the timestamp
+        const rawDate = new Date(data.timestamp);
+        rawDate.setHours(rawDate.getHours() + 4);
+        setTimestamp(rawDate.toLocaleString());
+
         setDeviceName(data.deviceName);
         setSerialNumber(data.serialNumber);
       })
