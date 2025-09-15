@@ -41,7 +41,7 @@ AirSecure is a production-ready authentication system built on Next.js and Postg
 | Category | Technologies |
 |----------|--------------|
 | **Frontend** | Next.js (App Router), React, Material UI, Emotion |
-| **Backend** | Next.js API Routes |
+| **Backend** | Next.js API Routes, [Python ML Engine](./src/README.md) |
 | **Database** | PostgreSQL |
 | **Authentication** | JWT, HttpOnly cookies |
 | **DevOps** | Docker support |
@@ -85,6 +85,10 @@ AirSecure is a production-ready authentication system built on Next.js and Postg
    ```
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Backend Components
+
+- **[Machine Learning Engine](./src/)** - Python-based wireless security detection system for identifying rogue access points and evil twin networks
 
 ## Production Deployment
 
